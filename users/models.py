@@ -5,14 +5,16 @@ from users.manager import UserManager
 
 
 class User(AbstractUser):
-    username=None
+    
     email=models.EmailField(unique=True,max_length=255, error_messages={'unique':'email already exist'})
+    username = models.CharField(max_length=150, unique=True, default='user_default')
+
     is_customer=models.BooleanField(default=False)
     is_eventorganizer=models.BooleanField(default=False)
     is_admin=models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 
