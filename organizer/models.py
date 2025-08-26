@@ -1,0 +1,38 @@
+from django.db import models
+from users.models import User
+
+
+class Event(models.Model):
+    CATEGORY_CHOICES = [
+        ('MUSIC', 'music'),
+        ('SPORTS', 'sports'),
+        ('TECH', 'tech'),
+        ('ARTS', 'arts'),
+        ('OTHER', 'other'),
+    ]
+
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
+    location = models.CharField(max_length=255)
+    start_at = models.DateTimeField()
+    end_at = models.DateTimeField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_seats = models.PositiveIntegerField()
+    available_seats = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'organizer_table'
+        verbose_name = 'organizer'
+        verbose_name_plural = 'organizers'
+        ordering = ['-id']
+
+    def __str__(self):
+        return f"{self.title} ({self.organizer.username})"
+
+
+
+
+
