@@ -8,6 +8,7 @@ class User(AbstractUser):
     
     email=models.EmailField(unique=True,max_length=255, error_messages={'unique':'email already exist'})
     username = models.CharField(max_length=150, unique=True, default='user_default')
+    phone = models.CharField(max_length=15, blank=True, null=True) 
 
     is_customer=models.BooleanField(default=False)
     is_eventorganizer=models.BooleanField(default=False)

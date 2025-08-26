@@ -6,7 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.contrib.auth import authenticate ,login as auth_login, logout as auth_logout
 from users.models import User
-from customer.models import Customer
+from customer.models import *
+from organizer.models import*
 
 
 
@@ -38,7 +39,6 @@ def login(request):
     return Response(response_data)
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
@@ -50,7 +50,6 @@ def register(request):
     phone = request.data.get('phone')
     
 
-   
     if User.objects.filter(email=email).exists():
         return Response({
             "status_code": 6001,
@@ -58,7 +57,7 @@ def register(request):
             "message": "User already exists"
         })
 
-
+    # Create user
     user = User.objects.create_user(
         email=email,
         username=username,
@@ -66,26 +65,24 @@ def register(request):
         first_name=first_name,
         last_name=last_name,
         phone=phone,
-        
     )
     user.save()
 
 
-    customer = Customer.objects.create(
-            user=user,
-            )
+    customer = Customer.objects.create(user=user)
     customer.save()
 
-  
+   
+    refresh = RefreshToken.for_user(user)
 
     return Response({
         "status_code": 6000,
         "data": {
             "access": str(refresh.access_token),
-            "refresh": str(refresh),
-           
+            
+            "role": role,
         },
-        "message": "Registration successful"
+        "message": f"Registration successful "
     })
 
     
