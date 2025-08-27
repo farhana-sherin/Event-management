@@ -33,6 +33,7 @@ class Event(models.Model):
     total_seats = models.PositiveIntegerField()
     available_seats = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    images = models.FileField(upload_to="event_images/", blank=True, null=True)
 
     class Meta:
         db_table = 'organizer_table'

@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate ,login as auth_login, logout as aut
 from users.models import User
 from customer.models import *
 from organizer.models import*
+from api.v1.organizer.serializer import EventSerializer
 
 
 
@@ -57,7 +58,7 @@ def register(request):
             "message": "User already exists"
         })
 
-    # Create user
+    
     user = User.objects.create_user(
         email=email,
         username=username,
@@ -82,8 +83,83 @@ def register(request):
             
             "role": role,
         },
-        "message": f"Registration successful "
+        "message": "Registration successful "
     })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def profile(request):
+    user=request.user
+    customer=Customer.objects.get(user=user)
+    
+
+
+
+    response_data = {
+        "status_code": 6000,
+        "data": {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "email": user.email,
+            "phone": user.phone
+        },
+        "message": "Profile retrieved successfully"
+    }
+    return Response(response_data)
+
+
+
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_profile(request):
+    user=request.user
+    user.first_name = request.data.get('first_name', user.first_name)
+    user.last_name = request.data.get('last_name', user.last_name)
+    user.username = request.data.get('username', user.username)
+    user.email = request.data.get('email', user.email)
+    user.phone = request.data.get('phone', user.phone)
+    user.save()
+
+
+    response_data = {
+        "status_code": 6000,
+        "data":{
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "email": user.email,
+            "phone": user.phone
+
+        },
+        "message": "Profile updated successfully"
+    }
+    return Response(response_data)
+
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def serach_eventby_category(request):
+    category = request.data.get('category')
+    events = Event.objects.filter(category__iexact=category)
+    context={
+        "request":request
+    }
+
+      
+    serializer = EventSerializer(events, many=True,context=context)
+
+    return Response({
+        "status_code": 6000,
+        "data": serializer.data,
+        "message": f"Events in category '{category}'"
+    })
+
+
+
 
     
 
