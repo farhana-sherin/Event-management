@@ -9,6 +9,15 @@ class Organizer(models.Model):
     
     phone = models.CharField(max_length=15, blank=True, null=True)
 
+
+
+
+    class Meta:
+        db_table = 'organizer'
+        verbose_name = 'organizer'
+        verbose_name_plural = 'organizers'
+        ordering = ['-id']
+
     def __str__(self):
         return self.user.email
 
@@ -22,7 +31,7 @@ class Event(models.Model):
         ('OTHER', 'other'),
     ]
 
-    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
+    organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE, related_name='events')
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
@@ -36,13 +45,10 @@ class Event(models.Model):
     images = models.FileField(upload_to="event_images/", blank=True, null=True)
 
     class Meta:
-        db_table = 'organizer_table'
-        verbose_name = 'organizer'
-        verbose_name_plural = 'organizers'
         ordering = ['-id']
 
     def __str__(self):
-        return f"{self.title} ({self.organizer.username})"
+        return f"{self.title} ({self.organizer.user.username})"
 
 
 

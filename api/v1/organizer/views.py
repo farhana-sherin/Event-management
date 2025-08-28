@@ -26,6 +26,7 @@ def list_event(request):
     }
     return Response(response_data)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])  
 def create_event(request):
@@ -33,16 +34,20 @@ def create_event(request):
     serializer = EventSerializer(data=data)
 
     if serializer.is_valid():
-        
-        organizer = request.user if request.user.is_authenticated else None
+        organizer = None
+        if request.user.is_authenticated:
+            
+            
+         organizer = Organizer.objects.get(user=request.user)
+            
+              
+
         event = serializer.save(organizer=organizer)
-        context={
-            "request":request
-        }
+        context = {"request": request}
 
         response_data = {
             "status_code": 6000,
-            "data": EventSerializer(event,context=context).data,
+            "data": EventSerializer(event, context=context).data,
             "message": "Event created successfully"
         }
         return Response(response_data)
@@ -54,6 +59,7 @@ def create_event(request):
             "message": "Event creation failed"
         }
         return Response(response_data)
+
 
 
 
@@ -74,6 +80,23 @@ def update_event(request, id):
             "message": "Event partially updated successfully"
         }
         return Response(response_data)
+
+
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_event(request,id):
+    event=Event.objects.get(id=id)
+    event.delete()
+
+    response_data={
+        "status_code":6000,
+        "message": "Event deleted successfully."
+
+    }
+
+
+    return Response(response_data)
 
     
 
