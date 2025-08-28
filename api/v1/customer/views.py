@@ -139,24 +139,27 @@ def update_profile(request):
 
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def serach_eventby_category(request):
     category = request.data.get('category')
     events = Event.objects.filter(category__iexact=category)
-    context={
-        "request":request
-    }
+    context = {"request": request}
 
-      
-    serializer = EventSerializer(events, many=True,context=context)
+    serializer = EventSerializer(events, many=True, context=context)
 
-    return Response({
+    response_data = {
         "status_code": 6000,
         "data": serializer.data,
         "message": f"Events in category '{category}'"
-    })
+    }
+
+    return Response(response_data)
+
+
+
+
+
 
 
 

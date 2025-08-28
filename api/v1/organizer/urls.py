@@ -6,6 +6,8 @@ app_name = 'organizer'
 
 urlpatterns = [
     path("event/list/",views.list_event,name="event"),
+    path("event/create",views.create_event,name="createEvent"),
+    path("event/update/<int:id>/",views.update_event,name="updateEvent")
    
 
 ]
