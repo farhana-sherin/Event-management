@@ -157,6 +157,24 @@ def serach_eventby_category(request):
     return Response(response_data)
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def events_list(request):
+    events=Event.objects.all().order_by('-start_at') 
+    serializer = EventSerializer(events, many=True, context={'request': request})
+
+
+    response_data={
+        "status_code":6000,
+        "data":
+            serializer.data,
+        "message":"Events retrieved successfully"
+    }
+
+    return Response(response_data)
+
+
+
 
 
 

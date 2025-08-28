@@ -10,6 +10,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
     path('searchby/category/',views.serach_eventby_category,name='search'),
+    path('events/list/',views.events_list,name="events")
     
 
 
