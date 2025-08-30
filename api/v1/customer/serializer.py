@@ -1,14 +1,30 @@
-from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from django.conf import settings
-
-
-from customer.models import *
+from customer.models import Customer
 from users.models import User
+from payments.models import Booking
+from api.v1.organizer.serializer import *
 
 
 
-class CustomerSerializer(ModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['id', 'user']
         model = Customer
+        fields = ['id', 'user']
+
+class BookingSerializer(serializers.ModelSerializer):
+    event = EventSerializer()
+    class Meta:
+        model = Booking
+        
+        fields = [
+            "id","customer","event","tickets_count","total_amount","status","qr_code","created_at"]
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    event = EventSerializer(read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'event', 'created_at']
+
+        

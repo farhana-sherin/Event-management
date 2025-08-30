@@ -43,6 +43,7 @@ class Event(models.Model):
     available_seats = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     images = models.FileField(upload_to="event_images/", blank=True, null=True)
+    is_active = models.BooleanField(default=False) 
 
     class Meta:
         ordering = ['-id']

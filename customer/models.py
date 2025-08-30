@@ -9,6 +9,27 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.user.email
+
+
+# payments/models.py (or a new file if you prefer)
+from django.db import models
+from customer.models import Customer
+from organizer.models import Event
+
+class Wishlist(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        
+        db_table = 'wishlist_table'
+        verbose_name = 'wishlist'
+        verbose_name_plural = 'wishlists'
+
+    def __str__(self):
+        return f"{self.customer} - {self.event}"
+
     
     
     
