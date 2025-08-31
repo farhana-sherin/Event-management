@@ -30,6 +30,22 @@ class Wishlist(models.Model):
     def __str__(self):
         return f"{self.customer} - {self.event}"
 
+class Notification(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "notifications"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} -> {self.customer.user.username}"
+
+
+
     
     
     

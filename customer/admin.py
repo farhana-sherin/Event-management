@@ -3,4 +3,5 @@ from customer.models import *
 
 admin.site.register(Customer)
 admin.site.register(Wishlist)
+admin.site.register(Notification)
 

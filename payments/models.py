@@ -54,7 +54,6 @@ class Payment(models.Model):
         ordering = ['-id']
 
     def __str__(self):  
-
-        return f"{self.booking.user.username} - {self.status}"
+        return f"{self.booking.customer.user.email} - {self.status}"
         
 
