@@ -30,7 +30,7 @@ class WishlistSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ["id", "title", "message", "is_read", "created_at"]
+        fields = ["id", "title", "message", "is_read", "type","created_at"]
 
 class PaymentSerializer(serializers.ModelSerializer):
     booking_id = serializers.IntegerField(source="booking.id", read_only=True)

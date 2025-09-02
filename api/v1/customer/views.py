@@ -17,88 +17,6 @@ from api.v1.customer.serializer import *
 
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def create_payment(request,id):
-   
-    user = request.user
-    booking = Booking.objects.filter(id=id, customer__user=user).first()
-    if not booking:
-        return Response({"status_code": 6001, "message": "Booking not found"})
-
-    if booking.status == "PAID":
-        payment = Payment.objects.filter(booking=booking).first()
-        serializer = PaymentSerializer(payment, context={"request": request})
-        
-        return Response({"status_code": 6002, "message": "Booking already paid"})
-
-    amount = int(booking.total_amount * 100)  
-
-    payment_intent = stripe.PaymentIntent.create(
-        amount=amount,
-        currency='inr',
-        metadata={
-            "booking_id": booking.id,
-            "customer_email": user.email
-        },
-    )
-
-    return Response({
-        "status_code": 6000,
-        "data": {
-            "client_secret": payment_intent.client_secret,
-                "payment_intent_id": payment_intent.id,
-                "amount": booking.total_amount
-        },
-        "message": "Payment initiated successfully"
-    })
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def confirm_payment(request, id):
-    user = request.user
-    booking = Booking.objects.filter(id=id, customer__user=user).first()
-
-    if not booking:
-        return Response({
-            "status_code": 6001, 
-            "data": {},
-            "message": "Booking not found"
-        })
-
-    if booking.status == "PAID":
-        payment = Payment.objects.filter(booking=booking).first()
-        serializer = PaymentSerializer(payment, context={"request": request})
-        return Response({
-            "status_code": 6002, 
-            "data": serializer.data if payment else {},
-            "message": "Booking already paid"
-        })
-
- 
-    booking.status = "PAID"
-    booking.save()
-
-   
-    payment, created = Payment.objects.update_or_create(
-        booking=booking,
-        defaults={
-            "customer": booking.customer,
-            "provider": "Stripe",
-            "payment_id": f"STRIPE-{booking.id}-{booking.qr_code}",
-            "status": "SUCCESS",
-            "amount": booking.total_amount,
-            "receipt_url": "",
-        }
-    )
-
-    serializer = PaymentSerializer(payment, context={"request": request})
-
-    return Response({
-        "status_code": 6000,
-        "data": serializer.data,
-        "message": "Payment confirmed and booking marked as PAID"
-    })
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -334,6 +252,16 @@ def create_booking(request, id):
     event.available_seats -= tickets_count
     event.save()
 
+
+        # Create notification
+    create_notification(
+        customer=customer,
+        title="Booking Confirmed",
+        message=f"Your booking for '{event.title}' has been confirmed!",
+        type="BOOKING"
+    )
+
+
     response_data = {
         "status_code": 6000,
         "data": BookingSerializer(booking,context=context).data
@@ -363,6 +291,16 @@ def cancel_booking(request, id):
     
     booking.status = "CANCELLED"
     booking.save()
+
+
+     # Create notification
+    create_notification(
+        customer=customer,
+        title="Booking Cancelled",
+        message=f"Your booking for '{booking.event.title}' has been cancelled.",
+        type="BOOKING"
+    )
+
 
     response_data = {
         "status_code": 6000,
@@ -538,8 +476,6 @@ def mark_notification_read(request, id):
     return Response(response_data)
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
 def mark_all_notifications_read(request):
    
     user = request.user
@@ -552,6 +488,30 @@ def mark_all_notifications_read(request):
         "message": f"{updated_count} notifications marked as read"
     }
     return Response(response_data)
+
+
+
+def create_notification(customer, title, message, type="GENERAL"):
+    Notification.objects.create(
+        customer=customer,
+        title=title,
+        message=message,
+        type=type
+    )
+
+    
+
+
+def notify_event_update(event):
+    bookings = Booking.objects.filter(event=event)
+    for booking in bookings:
+        create_notification(
+            customer=booking.customer,
+            title="Event Updated",
+            message=f"The event '{event.title}' has been updated. Check the new details.",
+            type="EVENT"
+        )
+
 
 
 

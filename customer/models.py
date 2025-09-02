@@ -31,11 +31,20 @@ class Wishlist(models.Model):
         return f"{self.customer} - {self.event}"
 
 class Notification(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    TYPE_CHOICES = [
+        ("GENERAL", "General"),
+        ("BOOKING", "Booking"),
+        ("EVENT", "Event"),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="notifications")
     title = models.CharField(max_length=255)
     message = models.TextField()
+    type= models.CharField(max_length=20, choices=TYPE_CHOICES, default="GENERAL")
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
 
     class Meta:
         db_table = "notifications"
